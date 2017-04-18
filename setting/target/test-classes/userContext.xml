@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="userDaoImpl"
+			class="com.blog.naver.user.dao.UserDaoImpl">
+		<!-- 다른 Context에 있는 bean 사용 가능함! -->
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+	</bean>
+	
+	<bean id="userBizImpl"
+			class="com.blog.naver.user.biz.UserBizImpl">
+		<property name="userDao" ref="userDaoImpl" />
+	</bean>
+
+	<bean id="userServiceImpl"
+			class="com.blog.naver.user.service.UserServiceImpl">
+		<property name="userBiz" ref="userBizImpl"/>
+	</bean>
+</beans>

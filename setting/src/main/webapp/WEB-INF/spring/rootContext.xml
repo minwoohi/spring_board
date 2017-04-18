@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+		<!-- c: 또한 namespace -->
+	<!-- rootContext 만들어 데이터베이스 설정을 위한 Bean들 등록 -->
+	
+	<!-- Connection을 대체할 Bean 생성 -->
+	
+	<bean id="dataSource"
+			class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="net.sf.log4jdbc.DriverSpy" />
+		<property name="url" value="jdbc:log4jdbc:oracle:thin:@localhost:1521:XE" />
+		<property name="username" value="BOARD_2" />
+		<property name="password" value="1234" />
+	</bean>
+
+	
+	<bean id="transactionManager"
+			class="org.springframework.jdbc.datasource.DataSourceTransactionManager" >
+		<property name="dataSource" ref="dataSource" /> <!-- 트랜잭션 대상 선정. 바뀔 일 없고 이후 복사해서 사용 -->		
+	</bean>
+	
+	<!-- 이벤트 발생했을 때 트랜잭션 동작시킬 메소드 지정 -->
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- xx로 시작하는 메소드에서 RuntimeException 발생하면 rollback(롤백) 시켜라 -->
+			<!-- 감시할 패키지 범위를 aop로 지정해줌 -->
+			
+			<!-- Create -->
+			<tx:method name="add*" rollback-for="RuntimeException"/>
+			<tx:method name="insert*" rollback-for="RuntimeException"/>
+			<tx:method name="create*" rollback-for="RuntimeException"/>
+			<tx:method name="new*" rollback-for="RuntimeException"/>
+			<tx:method name="plus*" rollback-for="RuntimeException"/>
+			<tx:method name="append*" rollback-for="RuntimeException"/>
+			<tx:method name="make*" rollback-for="RuntimeException"/>
+			
+			<!-- Update -->
+			<tx:method name="update*" rollback-for="RuntimeException"/>
+			<tx:method name="modify*" rollback-for="RuntimeException"/>
+			<tx:method name="edit*" rollback-for="RuntimeException"/>
+			<tx:method name="fix*" rollback-for="RuntimeException"/>
+			<tx:method name="change*" rollback-for="RuntimeException"/>
+			<tx:method name="alter*" rollback-for="RuntimeException"/>
+			
+			<!-- Delete -->
+			<tx:method name="delete*" rollback-for="RuntimeException"/>
+			<tx:method name="remove*" rollback-for="RuntimeException"/>
+			<tx:method name="erase*" rollback-for="RuntimeException"/>
+			<tx:method name="signOut*" rollback-for="RuntimeException"/>
+			
+			<!-- Read -->
+			<!-- 데이터를 단순히 가져오는 거라면 데이터 수정을 허용하지 않겠다. -->
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="select*" read-only="true"/>
+			<tx:method name="read*" read-only="true"/>
+			<tx:method name="view*" read-only="true"/>
+			
+			<!-- 이름 주기 애매한 경우 (ETC) -->
+			<tx:method name="tx*" rollback-for="RuntimeException"/>
+			<tx:method name="*Action" rollback-for="RuntimeException"/>
+			
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+		<!-- 접근지정자, 리턴타입, 패키지 (.* : 하위 모든 패키지) -->
+		<!-- com.blog.naver.하위 패키지.하위패키지의 ServiceImpl로 끝나는 모든 클래스의 모든 메소드 -->
+		<aop:pointcut id="transactionScope" expression="execution(public * com.blog.naver..*.*ServiceImpl.*(..))" />
+		
+		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="transactionScope"/>
+		
+	</aop:config>
+	
+	<!-- Connection을 관리하는 객체. dataSource 세터도 있기 때문에 daoImpl에서 private 멤버 가질 필요 없다. -->
+	<bean id="sqlSessionFactory"
+			class="org.mybatis.spring.SqlSessionFactoryBean"> <!-- mybatis-spring -->
+		<property name="dataSource" ref="dataSource" />	
+		<property name="configLocation" value="classpath:/mybatis.xml" />
+		<!-- classpath:/ xml, jar 파일 등 경로 찾는 클래스 -->
+	</bean>
+	
+	<!-- JdbcDaoSupport와 같은 역할 DaoImpl 코드들 구현해 놓은 클래스 -->
+	<bean id="sqlSessionTemplate"
+			class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+	
+</beans>

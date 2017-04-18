@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+							"http://mybatis.org/dtd/mybatis-3-config.dtd">
+							
+<configuration>
+
+	<typeAliases>
+		<typeAlias type="com.blog.naver.board.vo.BoardVO" alias="BoardVO"/>
+		<typeAlias type="com.blog.naver.user.vo.UserVO" alias="UserVO"/>
+		<typeAlias type="com.blog.naver.board.vo.BoardSearchVO" alias="BoardSearchVO"/>
+	</typeAliases>
+	
+	<mappers>
+		<mapper resource="com/blog/naver/board/dao/sql/boardDaoSql.xml" />
+		<mapper resource="com/blog/naver/user/dao/sql/UserDaoSql.xml" />
+	</mappers>
+	
+</configuration>

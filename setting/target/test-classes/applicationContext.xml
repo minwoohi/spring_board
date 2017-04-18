@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
+	
+	<mvc:annotation-driven/>
+	
+	<!-- 
+		"http://localhost:8080/setting/static/js/파일명" 요청에 대해
+		"/WEB-INF/resources/js/파일명"으로 응답 주겠다.
+	 -->
+	
+	<mvc:resources mapping="/static/js/**" location="/WEB-INF/resources/js/" />
+	<mvc:resources mapping="/static/css/**" location="/WEB-INF/resources/css/" />
+	<mvc:resources mapping="/static/img/**" location="/WEB-INF/resources/img/" />
+	
+	<bean id="validator"
+			class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+	
+	<bean id="viewResolver"
+			class="org.springframework.web.servlet.view.InternalResourceViewResolver" >
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<bean id="helloController" class="com.blog.naver.board.web.MainController" />
+	
+	<bean id="boardController" class="com.blog.naver.board.web.BoardController">
+		<property name="boardService" ref="boardServiceImpl" />
+	</bean>
+	
+	<bean id="userController" class="com.blog.naver.user.web.UserController">
+		<property name="userService" ref="userServiceImpl" />
+	</bean>
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	<property name="maxUploadSize" value="104857600" /> <!-- 100mb -->
+	<property name="defaultEncoding" value="UTF-8" />
+</bean>
+	
+</beans>

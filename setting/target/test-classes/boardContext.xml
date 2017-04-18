@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- service, biz, dao에 대한 것 만든다. Controller는 applicationContext.xml에 등록 -->
+	
+	<bean id="boardDaoImpl"
+			class="com.blog.naver.board.dao.BoardDaoImpl">
+		<!-- 다른 Context에 있는 bean 사용 가능함! -->
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+	</bean>
+	
+	<bean id="boardBizImpl"
+			class="com.blog.naver.board.biz.BoardBizImpl">
+		<property name="boardDao" ref="boardDaoImpl" />
+	</bean>
+
+	<bean id="boardServiceImpl"
+			class="com.blog.naver.board.service.BoardServiceImpl">
+		<property name="boardBiz" ref="boardBizImpl"/>
+	</bean>
+</beans>
