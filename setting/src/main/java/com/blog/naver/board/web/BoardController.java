@@ -2,6 +2,9 @@ package com.blog.naver.board.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.blog.naver.board.service.BoardService;
@@ -49,7 +53,6 @@ public class BoardController {
 		// 항상 되므로 searchVO의 Setter에서 처리하는 것이 간편하다.
 		
 		ModelAndView view = new ModelAndView();
-		
 		UserVO user = (UserVO) session.getAttribute("_USER_");
 		
 		if(user != null){
@@ -61,12 +64,24 @@ public class BoardController {
 			// Class 분리 이용해 한줄로 할 수 있음. AOP(?)
 			ClassicPageExplorer pageExplorer = new ClassicPageExplorer(boardList.getPager());
 			String pager = pageExplorer.getPagingList("pageNo", "[@]", "Prev", "Next", "searchForm");
-			
 			view.addObject("pager", pager);
 		} else {
 			view.setViewName("user/signIn");
 		}
 		return view;
+	}
+	
+	@RequestMapping("/board/download/{boardId}")
+	public void downloadFile(@PathVariable int boardId, HttpServletRequest request, HttpServletResponse response){
+		BoardVO board = boardService.getOneBoard(boardId);
+		
+		DownloadUtil downloadUtil 
+				= DownloadUtil.getInstance("D:\\uploadFiles\\");
+		try {
+			downloadUtil.download(request, response, board.getRealFileName(), board.getPost());
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException( e.getMessage(), e );
+		}
 	}
 	
 	@RequestMapping("/board/detail/{id}")
@@ -101,19 +116,14 @@ public class BoardController {
 		//	HttpSession session = request.getSession();
 		
 		//	실무에서는 Info / debug 많이 사용한다.
-		//	logger.trace(boardVO.getSubject());
-		//	logger.debug(boardVO.getSubject());
-		//	logger.info(boardVO.getSubject());
-		//	logger.warn(boardVO.getSubject());
-		//	logger.error(boardVO.getSubject());
 		
-		//short circuit evaluation
-		boardVO.setPost(boardVO.getFile().getOriginalFilename());
 		boardVO.setIp(request.getRemoteAddr());
-		logger.info("fileName : " + boardVO.getPost());
+		//short circuit evaluation
 		if(boardVO.getFile() != null && !boardVO.getFile().isEmpty()){
+			String fileName = UUID.randomUUID().toString();
+			
 			String filePath = "D:/uploadFiles/"
-					+boardVO.getFile().getOriginalFilename();
+					+ fileName;
 			File newFile = new File(filePath);
 			
 			try{
@@ -123,10 +133,13 @@ public class BoardController {
 			}catch (IOException e) {
 				throw new RuntimeException(e.getMessage(),e);
 			}
+			// 파일 원본 명
+			boardVO.setPost(boardVO.getFile().getOriginalFilename());
 			
-			if ( boardService.addOneBoard(boardVO) ){
-				return "redirect:/board/list";
-			}
+			boardVO.setRealFileName(fileName);
+		}
+		if ( boardService.addOneBoard(boardVO) ){
+			return "redirect:/board/list";
 		}
 		return "redirect:/board/write";
 	}
@@ -145,13 +158,17 @@ public class BoardController {
 		return "redirect:/user/signIn";
 	}
 	
+	/*@RequestMapping("/board/json")
+	@ResponseBody
+	public List<BoardVO> getBoardListJson(){
+		return boardService.getAllArticles();
+	}*/
+	
 	@RequestMapping(value="/board/post/{boardId}", method=RequestMethod.GET)
 	public void doPost(@PathVariable int boardId, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		BoardVO board = boardService.getOneBoard(boardId);
-		logger.info("boardId : " + boardId);
 		String postPath = "D:\\uploadFiles\\";
-		logger.info("postPath : " + postPath);
 		DownloadUtil util = DownloadUtil.getInstance(postPath);
-		util.download(request, response, board.getPost(), board.getPost());
+		util.download(request, response, board.getRealFileName(), board.getPost() );
 	}
 }

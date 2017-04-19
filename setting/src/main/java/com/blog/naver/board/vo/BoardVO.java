@@ -20,6 +20,7 @@ public class BoardVO {
 	private String writeDate;
 	private String ip;
 	private String post;
+	private String realFileName;
 	
 	private UserVO userVO;
 	
@@ -87,6 +88,14 @@ public class BoardVO {
 
 	public void setUserVO(UserVO userVO) {
 		this.userVO = userVO;
+	}
+
+	public String getRealFileName() {
+		return realFileName;
+	}
+
+	public void setRealFileName(String realFileName) {
+		this.realFileName = realFileName;
 	}
 	
 	

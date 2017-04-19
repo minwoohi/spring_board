@@ -41,15 +41,6 @@ public class UserController {
 				return "redirect:/user/signUp";
 			}
 		}
-		/*if (errors.hasErrors()) {
-			return "/user/signUp";
-		} else {
-			if (userService.addUser(user)) {
-				return "redirect:/user/signIn";
-			} else {
-				return "redirect:/user/signUp";
-			}
-		}*/
 	}
 	
 	
@@ -61,8 +52,8 @@ public class UserController {
 
 	@RequestMapping(value = "/user/signIn", method = RequestMethod.POST)
 	public String doSignInPage(@Valid @ModelAttribute("signInForm") UserVO user, Errors errors, HttpSession session) {
-		logger.info(user.getUserId());
-		logger.info(user.getUserPassword());
+		logger.info("userId : " +user.getUserId());
+		logger.info("userPassword : " + user.getUserPassword());
 		
 		if(errors.getErrorCount() > 1){ // error가 존재한다면
 			logger.info("getErrorCount > 1");

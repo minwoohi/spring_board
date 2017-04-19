@@ -1,6 +1,7 @@
 package com.blog.naver.board.dao;
 
 import java.util.List;
+import java.util.Scanner;
 
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 

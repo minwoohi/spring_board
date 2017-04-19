@@ -73,7 +73,12 @@
 		 							, WRITE_DATE
 		 							, LIKE_COUNT
 		 							, IP
+		 							<if test="post != null">
 		 							, PST
+		 							</if>
+		 							<if test="realFileName != null">
+		 							, RL_FL_NM
+		 							</if>
 		 						)
 		 VALUES					(
 		 							BOARD_ID_SEQ.NEXTVAL
@@ -83,7 +88,12 @@
 		 							, SYSDATE
 		 							, 0
 		 							, #{ip}
+		 							<if test="post != null">
 		 							, #{post}
+		 							</if>
+		 							<if test="realFileName != null">
+		 							, #{realFileName}
+		 							</if>
 		 						)
 	</insert>
 	
@@ -99,6 +109,7 @@
 		<result column="LIKE_COUNT" property="likeCount" />
 		<result column="IP" property="ip" />
 		<result column="PST" property="post" />
+		<result column="RL_FL_NM" property="realFileName" />
 		
 		<!-- 1 : 다 관계의 경우 데이터 매핑시켜준다. 
 			association => 1 : 1 관계 
@@ -124,13 +135,14 @@
 				, B.LIKE_COUNT
 				, B.IP
 				, B.PST
+				, B.RL_FL_NM
 				, U.USR_ID
 				, U.USR_NM
 				, U.JOIN_DT
 		FROM	BOARD B
 				, USRS U
 		WHERE	B.WRITER = U.USR_ID
-		AND	BOARD_ID = #{boardId} /*-- board 객체의 boardId 아니고 매개변수명이다~ */
+		AND		BOARD_ID = #{boardId} /*-- board 객체의 boardId 아니고 매개변수명이다~ */
 	</select>
 	
 	<delete id="deleteOneArticle"
